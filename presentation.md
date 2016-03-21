@@ -1,29 +1,33 @@
 # Redux.js
 
-Created by [Barry Steyn](basteyn@microsoft.com)
+By [Barry Steyn](basteyn@microsoft.com)
 
 ~~
 
 # What Is Redux?
 ## A Utility For Handling State Change
 
- * Simple to get started
- * Difficult to use effectively
+ * Why can't we just use MVC?
 
 ~
-# Why Redux Is Necessary
 
- * Handling state change is difficult because of **side-effects**
- * State: *Server responses, cached data, locally created data* etc
+# MVC
+## A Common pattern in frameworks
+
+  * State stored in model
+  * View and controller can cause model update
+  * Not easy to understand causality relationships
 
 ~
-# What About MVC
+
+# Why Is MVC So Bad?
 
 There is no "centralized" control:
 
   >  A model can update another model, then a view can update a model, which updates another model, and this, in turn, might cause another view to update. At some point, you no longer understand what happens in your app as **you have lost control over the when, why, and how of its state**
 
 ~
+# Facebook's Problem
 
 <iframe class="stretch" src="https://www.youtube.com/embed/nYkdrAPrdcw?start=753&end=924&version=3" frameborder="0" allowfullscreen></iframe>
 
@@ -32,7 +36,8 @@ There is no "centralized" control:
 # Flux
 ## Facebook's Solution
 
- * Try to impose order on MVC
+ * Flux attempts to make state mutations predictable
+ * It does this by imposing certain restrictions on how and when updates can happen
 
 ~
 
@@ -40,230 +45,118 @@ There is no "centralized" control:
 
 ~~
 
+# Flux
+## Very minimal
 
-# Flux + Reducer = Redux
-
-~
-
-# Basic Concepts
-
-## Single Store
-
-~
-# Stack Vs Heap
-##Stack is temporary memory used in specific contexts (i.e. functions)
-##Heap is permanent (for the duration of your program) memory used in any context
-Memory declared on the heap therefore needs to be manually deleted
+ * Many implementations
+ * Sparsely defined
 
 ~
 
-# Removing Things From The Stack
-## Use the delete operator
+# Redux
+## Flux + Reducer = Redux
 
-```
-	int *p = new int;
-	delete p;
-```
+Using concepts of a **reducer** and **flux**, *Redux* was born
+**Reducer** comes from the functional term *reduce* as in *map-reduce*
 
 ~
 
-# Memory Leaks
-##If something is declared on the heap and you lose the reference to it, you get a memory leak
+# Three Principles Of Redux
 
-```
-	void memoryLeak() {
-		int *p = new int; //
-	}
-
-	for (int i=0; i < 1000; i++)
-		memoryLeak();
-```
-Memory leaks are the most common memory mistake to make
+ 1. **Single Source Of Truth** - there is only one store
+ 2. **State Is Read-Only**
+ 3. **Changes Are Made With Pure Functions**
 
 ~
 
-# Dangling Pointers
+# Well Defined
+## Redux Is Well Defined
 
-```
-	int *p = new int,
-		*a = &p;
+ * Allot of work has been put into Redux
+ * Huge community support
 
-	delete p; // a is now pointing to something it shouldn't
-```
+~
+
+# Elegant
+## Redux Is Elegant
+
+ * There is just one store
+ * Very easy to debug errors due to predictable state changes
+
 
 ~~
 
-# C++'s Conciseness Makes It Confusing
-## \* is used to declare a pointer, its also used to dereference it
+# Redux Consists Of
 
-```
-	int *p1 = new int;
-	*p1 = 3;
-
-	cout << p1 <<" "<< *p1;
-```
+ 1. Actions
+ 2. Action Creators
+ 3. Reducers
+ 4. Store
 
 ~
 
-#Spot The Problem \# 1
+# Actions
 
-```
-	int *p;
-	cout << *p;
-```
+ * Payloads of information that send data from application to store
+ * Are plain objects
+ * Must have at least a *type* property
+
 ~
 
-#Spot The Problem \# 2
+# Action Creators
 
-```
-	int *p = new int;
-	cout << p;
-```
+ * A function that returns an action
+ * Actions need to be `dispatched` in redux
+ * Different from actions: This is useful for server rendering
+
+~
+
+# Reducers
+## A reducer changes the state of a store
+
+ * Reducer takes as input the *previous state* and *action object*
+ * Produces changes the state of the store by creating a new object
+ * Are **pure** functions without state and side-effects
+
+Reducer composition makes things neat
+
+~
+
+# Store
+
+ * Holds application state
+ * Registers listeners
+ * Handles component unsubscribe
 
 ~~
 
-# Reference
-## A reference is an entity that is an alias for another variable
-C++ uses & as the reference operator
+# Redux Data Flow
 
-```
-	int a = 100;
-	int &b = a;
-```
-
+ 1. Call an action creator
+ 2. Dispatch the created action to the store
+ 3. Redux store calls the reducers
+ 4. Store saves new object returned by the reducer
 ~
 
-# C++'s Conciseness Makes It Confusing
-## The & operator can also be used to *get* a memory location
+# No Race Conditions
 
-```
-	int a = 100;
-	int *p = &a; //
-```
-
-~
-
-#Spot The Problem \# 3
-
-```
-	int a = 100;
-	int *p = a;
-```
+Like Flux, Redux actions are synchronous and do not suffer from race conditions
 
 ~~
 
-# Pass By Reference Vs Pass By Value
+# Redux Middleware
 
- * Modern languages pass complex types *by reference*
- * C++ bucks this trend and everything is passed by value.
-
-~
-
-# Pass By Reference
-## Instead of a complex type being copied, a reference to it is passed
-
- * Its efficient
- * Changes persist <- Watch out for side-effects
-<br><br>
-###This is what you want most of the time
-
-~
-# Example - pass by value
-
-```
-class Test {
-	int longArray[1000000]; //who cares about initialization :)
-}
-
-----
-
-void func1(Test t) {
-	//Do nothing
-}
-
-Test testVar
-func1(tetsVar);
-
-```
+The store can be altered with middleware
 
 ~
 
-# Example - pass by reference
-## Pointers And References Allow Pass By Reference
+# Redux Middleware
 
-```
-class Test {
-	int longArray[1000000]; //who cares about initialization :)
-}
-
-----
-
-void func1(Test &t) {
-	//Do nothing
-}
-
-Test testVar
-func1(tetsVar);
-
-```
-
-~~
-
-# Const
-##The const reserved word makes a variable as a constant:
-
-```
-const int a = 100; //a cannot change
-```
-
-~
-
-# C++'s Conciseness Makes It Confusing
-
-```
-void test(int * p);
-void test(const int *p);
-void test(int * const p);
-void test(const int * const p);
-
-```
-
-Much easier for references:
-```
-void test(const int &r);
-
-```
-
-~~
-#RAII Pattern
-##RAII = Resource Acquisition Is Initilization
-This is just fancy talk for meaning for the following:
-  1. Make pointers class variables
-  2. Intialize them on the heap in the constructor
-  3. Remove them in the destructor
-
-~
-# RAII Example
-
-```
-class Test {
-	int *p;
-
-	public:
-		Test() {
-			p = new int;
-		}
-
-		~Test() {
-			delete p;
-		}
-}
-```
-
-~~
-
-#Smart Pointers
-
+ * Makes redux async
+ * Hot reloading
+ * Time machine
+ * Logging
+ * Many more...
 
 ~~
 
